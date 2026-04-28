@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seva Singh – Smart Volunteer Coordination</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8;
+  --surface:#ffffff;
+  --surface2:#f7f9fc;
+  --border:#e2e8f0;
+  --border2:#cbd5e1;
+  --text:#1e293b;
+  --muted:#64748b;
+  --light:#94a3b8;
+  --orange:#e8612a;
+  --orange2:#f97316;
+  --orange-bg:#fff7ed;
+  --orange-border:#fed7aa;
+  --green:#16a34a;
+  --green-bg:#f0fdf4;
+  --green-border:#bbf7d0;
+  --red:#dc2626;
+  --red-bg:#fef2f2;
+  --red-border:#fecaca;
+  --blue:#2563eb;
+  --blue-bg:#eff6ff;
+  --blue-border:#bfdbfe;
+  --yellow:#d97706;
+  --yellow-bg:#fffbeb;
+  --yellow-border:#fde68a;
+  --purple:#7c3aed;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow2:0 4px 16px rgba(0,0,0,.10);
+  --shadow3:0 8px 32px rgba(0,0,0,.12);
+  --r:10px;
+  --r2:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{font-family:'Nunito',sans-serif;cursor:pointer}
+select,input,textarea{font-family:'Nunito',sans-serif}
+
+/* ═══════════ LOGIN ═══════════ */
+#loginScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#fdf4ec 0%,#fce9d4 40%,#e8f4f8 100%);
+  position:relative;overflow:hidden;
+}
+#loginScreen::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 80%,rgba(232,97,42,.12) 0%,transparent 50%),
+             radial-gradient(circle at 80% 20%,rgba(37,99,235,.08) 0%,transparent 50%);
+  pointer-events:none;
+}
+.login-card{
+  background:#fff;border-radius:24px;padding:44px 40px;width:460px;max-width:94vw;
+  box-shadow:0 20px 60px rgba(0,0,0,.13);position:relative;z-index:1;
+  animation:slideUp .4s ease;
+}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.login-brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.login-brand-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#e8612a,#f97316);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(232,97,42,.3)}
+.login-brand-name{font-family:'Playfair Display',serif;font-size:26px;color:var(--text)}
+.login-brand-tag{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.login-heading{font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.form-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.form-input{width:100%;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;font-family:'Nunito',sans-serif;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--orange);background:#fff}
+.role-section{margin:20px 0}
+.role-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
+.role-card{
+  border:2px solid var(--border);border-radius:12px;padding:14px 8px;
+  text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);
+}
+.role-card:hover{border-color:var(--orange);background:var(--orange-bg)}
+.role-card.selected{border-color:var(--orange);background:var(--orange-bg);box-shadow:0 0 0 3px rgba(232,97,42,.12)}
+.role-icon{font-size:26px;margin-bottom:6px}
+.role-name{font-size:12px;font-weight:700;color:var(--text)}
+.role-desc{font-size:10px;color:var(--muted);margin-top:2px}
+.btn-login{
+  width:100%;padding:14px;background:linear-gradient(135deg,#e8612a,#f97316);
+  color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:800;
+  margin-top:6px;transition:all .2s;box-shadow:0 4px 12px rgba(232,97,42,.3);
+}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,97,42,.4)}
+.demo-note{text-align:center;font-size:11px;color:var(--light);margin-top:14px}
+
+/* ═══════════ APP SHELL ═══════════ */
+#appScreen{display:none}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:60px;background:#fff;border-bottom:1.5px solid var(--border);
+  position:sticky;top:0;z-index:200;box-shadow:var(--shadow);
+}
+.topbar-brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:19px;color:var(--text)}
+.topbar-brand-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#e8612a,#f97316);display:flex;align-items:center;justify-content:center;font-size:16px}
+.topbar-nav{display:flex;gap:2px}
+.nav-btn{
+  padding:7px 14px;border-radius:8px;background:transparent;border:none;
+  color:var(--muted);font-size:13px;font-weight:600;transition:all .2s;
+}
+.nav-btn:hover,.nav-btn.active{background:var(--orange-bg);color:var(--orange)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.user-chip{display:flex;align-items:center;gap:8px;padding:5px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:700}
+.user-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.role-tag{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.tag-admin{background:var(--orange-bg);color:var(--orange);border:1.5px solid var(--orange-border)}
+.tag-ngo{background:var(--blue-bg);color:var(--blue);border:1.5px solid var(--blue-border)}
+.tag-vol{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border)}
+.btn-logout{padding:6px 12px;background:transparent;border:1.5px solid var(--border2);border-radius:8px;color:var(--muted);font-size:12px;font-weight:700;transition:.2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ═══════════ NOTIFICATION BELL ═══════════ */
+.notif-wrap{position:relative}
+.notif-bell{
+  width:36px;height:36px;border-radius:10px;background:var(--surface2);
+  border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;position:relative;transition:.2s;
+}
+.notif-bell:hover{background:var(--orange-bg);border-color:var(--orange-border)}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #fff}
+.notif-panel{
+  position:absolute;top:44px;right:0;width:320px;background:#fff;
+  border:1.5px solid var(--border);border-radius:var(--r2);box-shadow:var(--shadow3);
+  display:none;z-index:300;animation:dropDown .2s ease;
+}
+.notif-panel.open{display:block}
+@keyframes dropDown{from{transform:translateY(-8px);opacity:0}to{transform:translateY(0);opacity:1}}
+.notif-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.notif-title{font-size:13px;font-weight:700}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;transition:.15s}
+.notif-item:hover{background:var(--surface2)}
+.notif-item:last-child{border-bottom:none}
+.notif-item-icon{font-size:20px;flex-shrink:0}
+.notif-item-text{font-size:12px;line-height:1.5}
+.notif-item-time{font-size:10px;color:var(--light);margin-top:2px}
+.notif-urgent{background:var(--red-bg);border-left:3px solid var(--red)}
+
+/* ═══════════ CONTENT ═══════════ */
+.content{padding:24px;max-width:1100px;margin:0 auto}
+.page{display:none}.page.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════ PAGE HEADER ═══════════ */
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.page-title{font-family:'Playfair Display',serif;font-size:26px;color:var(--text)}
+.page-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.role-banner{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:var(--r);margin-bottom:18px;font-size:13px;font-weight:600}
+.banner-admin{background:var(--orange-bg);border:1.5px solid var(--orange-border);color:var(--orange)}
+.banner-ngo{background:var(--blue-bg);border:1.5px solid var(--blue-border);color:var(--blue)}
+.banner-vol{background:var(--green-bg);border:1.5px solid var(--green-border);color:var(--green)}
+
+/* ═══════════ STATS ═══════════ */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{
+  background:#fff;border:1.5px solid var(--border);border-radius:var(--r2);
+  padding:18px;box-shadow:var(--shadow);transition:.2s;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}
+.stat-icon{font-size:22px;margin-bottom:8px}
+.stat-num{font-size:30px;font-weight:800;color:var(--text);line-height:1}
+.stat-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.stat-note{font-size:11px;color:var(--green);margin-top:4px;font-weight:600}
+
+/* ═══════════ GRID ═══════════ */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+
+/* ═══════════ CARDS ═══════════ */
+.card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r2);padding:20px;box-shadow:var(--shadow)}
+.card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+
+/* ═══════════ NEED ITEMS ═══════════ */
+.need-item{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  border-radius:var(--r);background:var(--surface2);border:1.5px solid var(--border);
+  margin-bottom:8px;transition:.2s;
+}
+.need-item:hover{border-color:var(--border2);background:#fff;box-shadow:var(--shadow)}
+.priority-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-red{background:var(--red);box-shadow:0 0 6px rgba(220,38,38,.5)}
+.dot-yellow{background:var(--yellow)}
+.dot-blue{background:var(--blue)}
+.dot-green{background:var(--green)}
+.need-title{font-size:13px;font-weight:700;color:var(--text)}
+.need-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.need-actions{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+.score-pill{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.pill-red{background:var(--red-bg);color:var(--red);border:1.5px solid var(--red-border)}
+.pill-yellow{background:var(--yellow-bg);color:var(--yellow);border:1.5px solid var(--yellow-border)}
+.pill-blue{background:var(--blue-bg);color:var(--blue);border:1.5px solid var(--blue-border)}
+.pill-green{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border)}
+.pill-gray{background:var(--surface2);color:var(--muted);border:1.5px solid var(--border)}
+
+/* ═══════════ VOLUNTEER ITEMS ═══════════ */
+.vol-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);background:var(--surface2);border:1.5px solid var(--border);margin-bottom:8px;transition:.2s}
+.vol-item:hover{background:#fff;border-color:var(--border2);box-shadow:var(--shadow)}
+.vol-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.vol-name{font-size:13px;font-weight:700}
+.vol-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.avail-pill{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;margin-left:auto}
+.avail-yes{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border)}
+.avail-no{background:var(--red-bg);color:var(--red);border:1.5px solid var(--red-border)}
+
+/* ═══════════ BUTTONS ═══════════ */
+.btn{padding:9px 18px;border-radius:var(--r);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:linear-gradient(135deg,#e8612a,#f97316);color:#fff;box-shadow:0 2px 8px rgba(232,97,42,.25)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,97,42,.35)}
+.btn-secondary{background:#fff;color:var(--text);border:1.5px solid var(--border2)}
+.btn-secondary:hover{background:var(--surface2)}
+.btn-green{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border)}
+.btn-red{background:var(--red-bg);color:var(--red);border:1.5px solid var(--red-border)}
+.btn-blue{background:var(--blue-bg);color:var(--blue);border:1.5px solid var(--blue-border)}
+.btn-sm{padding:5px 12px;font-size:11px}
+
+/* ═══════════ FORMS ═══════════ */
+.form-group{margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f-label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.f-input{width:100%;padding:10px 13px;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-size:13px;outline:none;transition:.2s}
+.f-input:focus{border-color:var(--orange)}
+select.f-input option{background:#fff}
+
+/* ═══════════ SCORE BOX ═══════════ */
+.score-box{background:var(--orange-bg);border:1.5px solid var(--orange-border);border-radius:var(--r2);padding:16px;text-align:center;margin:14px 0}
+.score-num{font-size:48px;font-weight:800;color:var(--orange);line-height:1;font-family:'Playfair Display',serif}
+.score-level{font-size:13px;font-weight:700;color:var(--muted);margin-top:4px}
+.score-formula{font-size:10px;color:var(--light);margin-top:2px}
+
+/* ═══════════ MAP ═══════════ */
+.map-box{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r2);height:300px;position:relative;overflow:hidden}
+.map-info-bar{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);padding:10px 14px;font-size:12px;color:var(--muted);border-top:1px solid var(--border)}
+
+/* ═══════════ ALERT BOX ═══════════ */
+.alert{padding:12px 16px;border-radius:var(--r);font-size:13px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px}
+.alert-red{background:var(--red-bg);border:1.5px solid var(--red-border);color:var(--red)}
+.alert-green{background:var(--green-bg);border:1.5px solid var(--green-border);color:var(--green)}
+.alert-orange{background:var(--orange-bg);border:1.5px solid var(--orange-border);color:var(--orange)}
+.alert-blue{background:var(--blue-bg);border:1.5px solid var(--blue-border);color:var(--blue)}
+
+/* ═══════════ EMERGENCY ═══════════ */
+.emergency-bar{
+  display:none;align-items:center;gap:12px;padding:12px 16px;
+  background:var(--red-bg);border:2px solid var(--red);border-radius:var(--r);
+  margin-bottom:16px;animation:pulseRed 2s infinite;
+}
+.emergency-bar.show{display:flex}
+@keyframes pulseRed{0%,100%{border-color:var(--red-border)}50%{border-color:var(--red)}}
+
+/* ═══════════ IMPACT BARS ═══════════ */
+.bar-row{margin-bottom:14px}
+.bar-label-row{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:5px}
+.bar-track{height:9px;background:var(--surface2);border-radius:5px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill{height:100%;border-radius:5px;transition:width 1.2s ease}
+
+/* ═══════════ BADGES ═══════════ */
+.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge-item{text-align:center;background:var(--surface2);padding:16px 10px;border-radius:var(--r2);border:1.5px solid var(--border);transition:.2s}
+.badge-item:hover{transform:scale(1.04);box-shadow:var(--shadow)}
+.badge-item.earned{background:var(--yellow-bg);border-color:var(--yellow-border)}
+.badge-item.locked{opacity:.45}
+.badge-emoji{font-size:30px;margin-bottom:6px}
+.badge-name{font-size:12px;font-weight:700;margin-bottom:2px}
+.badge-pts{font-size:10px;color:var(--muted)}
+
+/* ═══════════ TOAST ═══════════ */
+.toast{
+  position:fixed;bottom:24px;right:24px;background:#fff;border:1.5px solid var(--border);
+  border-radius:14px;padding:14px 18px;font-size:13px;font-weight:600;z-index:9999;
+  display:flex;align-items:center;gap:10px;transform:translateY(80px);opacity:0;
+  transition:.35s;box-shadow:var(--shadow3);max-width:320px;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ═══════════ PROGRESS ═══════════ */
+.progress-bar{height:10px;background:var(--surface2);border-radius:5px;overflow:hidden;border:1px solid var(--border);margin-top:6px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#e8612a,#f97316);border-radius:5px;transition:width 1s ease}
+
+/* ═══════════ SLIDER ═══════════ */
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.slider-lbl{width:160px;font-size:12px;color:var(--muted);font-weight:600}
+input[type=range]{flex:1;accent-color:var(--orange)}
+.slider-val{width:32px;text-align:right;font-size:12px;font-weight:700}
+
+/* ═══════════ NOTIF BADGE COUNT ═══════════ */
+.badge-count{background:var(--red);color:#fff;border-radius:20px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:4px}
+
+@media(max-width:640px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .topbar-nav{display:none}
+  .content{padding:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ TOAST ════════════════════ -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-msg">Done!</span>
+</div>
+
+<!-- ════════════════════ LOGIN SCREEN ════════════════════ -->
+<div id="loginScreen">
+<div class="login-card">
+  <div class="login-brand">
+    <div class="login-brand-icon">🤝</div>
+    <div>
+      <div class="login-brand-name">Seva Singh</div>
+      <div class="login-brand-tag">Smart Volunteer Coordination</div>
+    </div>
+  </div>
+
+  <div class="login-heading">Welcome back 👋</div>
+  <div class="login-sub">Login to your dashboard</div>
+
+  <div class="form-group">
+    <label class="form-label">Your Name</label>
+    <input class="form-input" id="loginName" placeholder="Enter your full name" value="Rahul Sharma">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Email</label>
+    <input class="form-input" type="email" id="loginEmail" placeholder="you@example.com" value="rahul@sevasingh.org">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Password</label>
+    <input class="form-input" type="password" id="loginPass" placeholder="Enter password" value="seva123">
+  </div>
+
+  <div class="role-section">
+    <label class="form-label">Login as</label>
+    <div class="role-cards">
+      <div class="role-card selected" onclick="selectRole('Admin',this)">
+        <div class="role-icon">👑</div>
+        <div class="role-name">Admin</div>
+        <div class="role-desc">Manage everything</div>
+      </div>
+      <div class="role-card" onclick="selectRole('NGO',this)">
+        <div class="role-icon">🏢</div>
+        <div class="role-name">NGO</div>
+        <div class="role-desc">Report needs</div>
+      </div>
+      <div class="role-card" onclick="selectRole('Volunteer',this)">
+        <div class="role-icon">🙋</div>
+        <div class="role-name">Volunteer</div>
+        <div class="role-desc">Accept tasks</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-login" onclick="doLogin()">Login to Dashboard →</button>
+  <div class="demo-note">Demo project · Seva Singh College Team · 2026</div>
+</div>
+</div>
+
+<!-- ════════════════════ APP SHELL ════════════════════ -->
+<div id="appScreen">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-brand-icon">🤝</div>
+    Seva Singh
+  </div>
+  <div class="topbar-nav" id="topNav"></div>
+  <div class="topbar-right">
+    <!-- Notification Bell -->
+    <div class="notif-wrap">
+      <div class="notif-bell" onclick="toggleNotif()">
+        🔔
+        <div class="notif-dot" id="notifDot"></div>
+      </div>
+      <div class="notif-panel" id="notifPanel">
+        <div class="notif-header">
+          <span class="notif-title">🔔 Notifications</span>
+          <button style="font-size:11px;background:none;border:none;color:var(--muted);cursor:pointer" onclick="clearNotifs()">Clear all</button>
+        </div>
+        <div id="notifList"></div>
+      </div>
+    </div>
+    <div class="user-chip">
+      <div class="user-avatar" id="userAvatar" style="background:#e8612a">R</div>
+      <span id="userNameChip">Rahul</span>
+    </div>
+    <span class="role-tag tag-admin" id="roleTag">Admin</span>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<!-- ════════ PAGES CONTAINER ════════ -->
+<div class="content">
+
+<!-- ══════ ADMIN PAGES ══════ -->
+
+<!-- ADMIN DASHBOARD -->
+<div class="page" id="page-admin-home">
+  <div class="emergency-bar" id="emergencyBar">
+    <span style="font-size:22px">🚨</span>
+    <div><strong style="color:var(--red)">EMERGENCY MODE ACTIVE</strong><br>
+    <span style="font-size:11px;color:var(--muted)">All nearby volunteers have been SMS-notified immediately</span></div>
+    <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="cancelEmergency()">Deactivate</button>
+  </div>
+  <div class="role-banner banner-admin">👑 Admin View — You can see and control everything in the system</div>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Admin Dashboard</div>
+      <div class="page-sub" id="adminGreet">Welcome back, Admin!</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="nav('admin-report')">+ Report Need</button>
+      <button class="btn btn-red" onclick="triggerEmergency()">🆘 Emergency</button>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">🚨</div><div class="stat-lbl">Active Needs</div><div class="stat-num">12</div><div class="stat-note">▲ 3 new today</div></div>
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-lbl">Volunteers</div><div class="stat-num">34</div><div class="stat-note">● 18 online now</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-lbl">Tasks Done</div><div class="stat-num">189</div><div class="stat-note">▲ +12 this week</div></div>
+    <div class="stat-card"><div class="stat-icon">❤️</div><div class="stat-lbl">People Helped</div><div class="stat-num">2,413</div><div class="stat-note">▲ +320 this month</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🔴 Critical Needs</div>
+      <div class="need-item"><div class="priority-dot dot-red"></div><div style="flex:1"><div class="need-title">Dengue outbreak – Sector 4</div><div class="need-meta">Medical · 45 people · 6h ago</div></div><span class="score-pill pill-red">337</span></div>
+      <div class="need-item"><div class="priority-dot dot-red"></div><div style="flex:1"><div class="need-title">Flash flood – River Zone</div><div class="need-meta">Disaster · 60 people · 3h ago</div></div><span class="score-pill pill-red">480</span></div>
+      <div class="need-item"><div class="priority-dot dot-yellow"></div><div style="flex:1"><div class="need-title">Food shortage – Ward 7</div><div class="need-meta">Logistics · 80 people · 18h ago</div></div><span class="score-pill pill-yellow">248</span></div>
+      <div class="need-item"><div class="priority-dot dot-blue"></div><div style="flex:1"><div class="need-title">Elderly isolation – Kolhapur Rd</div><div class="need-meta">Counseling · 15 people · 2 days</div></div><span class="score-pill pill-blue">78</span></div>
+      <button class="btn btn-secondary btn-sm" style="margin-top:6px" onclick="nav('admin-needs')">View All Needs →</button>
+    </div>
+    <div class="card">
+      <div class="card-title">⭐ Top Volunteers</div>
+      <div class="vol-item"><div class="vol-avatar" style="background:#fde68a;color:#92400e">PS</div><div style="flex:1"><div class="vol-name">Priya Sharma</div><div class="vol-meta">Medical · 1.2km · 22 tasks · 🏅 Hero</div></div><span class="avail-pill avail-yes">Available</span></div>
+      <div class="vol-item"><div class="vol-avatar" style="background:#bbf7d0;color:#14532d">RK</div><div style="flex:1"><div class="vol-name">Rahul Kulkarni</div><div class="vol-meta">Logistics · 2.8km · 18 tasks</div></div><span class="avail-pill avail-yes">Available</span></div>
+      <div class="vol-item"><div class="vol-avatar" style="background:#bfdbfe;color:#1e3a8a">MJ</div><div style="flex:1"><div class="vol-name">Meena Jadhav</div><div class="vol-meta">Counseling · 4.1km · 15 tasks</div></div><span class="avail-pill avail-yes">Available</span></div>
+      <div class="vol-item"><div class="vol-avatar" style="background:#fecaca;color:#7f1d1d">AP</div><div style="flex:1"><div class="vol-name">Arjun Patil</div><div class="vol-meta">Medical · 0.9km · 12 tasks</div></div><span class="avail-pill avail-no">On Task</span></div>
+      <button class="btn btn-secondary btn-sm" style="margin-top:6px" onclick="nav('admin-volunteers')">Manage Volunteers →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN NEEDS PAGE -->
+<div class="page" id="page-admin-needs">
+  <div class="page-header">
+    <div><div class="page-title">Community Needs</div><div class="page-sub">All reported needs with priority scores</div></div>
+    <button class="btn btn-primary" onclick="nav('admin-report')">+ Report Need</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn btn-secondary btn-sm" onclick="filterNeeds('all')">All (5)</button>
+    <button class="btn btn-red btn-sm" onclick="filterNeeds('critical')">🔴 Critical</button>
+    <button class="btn btn-sm" style="background:var(--yellow-bg);color:var(--yellow);border:1.5px solid var(--yellow-border)" onclick="filterNeeds('high')">🟡 High</button>
+    <button class="btn btn-blue btn-sm" onclick="filterNeeds('medium')">🔵 Medium</button>
+  </div>
+  <div id="needsListFull"></div>
+</div>
+
+<!-- ADMIN REPORT NEED -->
+<div class="page" id="page-admin-report">
+  <div class="page-header"><div><div class="page-title">📋 Report Community Need</div><div class="page-sub">Fill this form to create a new need — priority is auto-calculated</div></div></div>
+  <div style="max-width:580px">
+    <div class="form-group"><label class="f-label">Issue Title *</label><input class="f-input" id="r-title" placeholder="e.g. Dengue outbreak in Sector 4"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="f-label">Category</label><select class="f-input" id="r-cat"><option>Medical Emergency</option><option>Food Shortage</option><option>Flood / Disaster</option><option>Mental Health</option><option>Elder Care</option><option>Child Education</option></select></div>
+      <div class="form-group"><label class="f-label">Location / Area</label><input class="f-input" id="r-loc" placeholder="Ward / Sector"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="f-label">Severity (1–10)</label><input type="number" class="f-input" id="r-sev" min="1" max="10" value="7" oninput="calcPriority()"></div>
+      <div class="form-group"><label class="f-label">People Affected</label><input type="number" class="f-input" id="r-ppl" value="50" oninput="calcPriority()"></div>
+    </div>
+    <div class="form-group"><label class="f-label">Skills Needed</label><select class="f-input" id="r-skill"><option>Medical / First Aid</option><option>Logistics / Driving</option><option>Teaching</option><option>Counseling</option><option>General Help</option></select></div>
+    <div class="score-box">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px">Auto Priority Score</div>
+      <div class="score-num" id="reportScore">105</div>
+      <div class="score-level" id="reportLevel">🟡 High Priority</div>
+      <div class="score-formula">Formula: Severity × People × 3 ÷ 10</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitNeed()">📤 Submit & Notify Volunteers</button>
+    <div class="alert alert-green" id="reportSuccess" style="display:none;margin-top:12px">✅ Need submitted! Nearby volunteers are being notified via SMS right now.</div>
+  </div>
+</div>
+
+<!-- ADMIN VOLUNTEERS -->
+<div class="page" id="page-admin-volunteers">
+  <div class="page-header"><div><div class="page-title">Volunteer Management</div><div class="page-sub">All registered volunteers</div></div></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn btn-secondary btn-sm" onclick="renderVols('all')">All (6)</button>
+    <button class="btn btn-green btn-sm" onclick="renderVols('avail')">✅ Available (4)</button>
+    <button class="btn btn-red btn-sm" onclick="renderVols('busy')">🔴 On Task (2)</button>
+  </div>
+  <div id="volsFull"></div>
+</div>
+
+<!-- ADMIN MAP -->
+<div class="page" id="page-admin-map">
+  <div class="page-header"><div><div class="page-title">🗺 Heatmap</div><div class="page-sub">Click any pin to see details</div></div></div>
+  <div class="map-box">
+    <svg width="100%" height="100%" viewBox="0 0 700 300" style="position:absolute;inset:0">
+      <defs>
+        <pattern id="grid" width="35" height="35" patternUnits="userSpaceOnUse">
+          <path d="M35 0L0 0 0 35" fill="none" stroke="rgba(0,0,0,.05)" stroke-width=".8"/>
+        </pattern>
+      </defs>
+      <rect width="700" height="300" fill="#eaf2f8"/><rect width="700" height="300" fill="url(#grid)"/>
+      <line x1="0" y1="150" x2="700" y2="150" stroke="rgba(0,0,0,.08)" stroke-width="2"/>
+      <line x1="350" y1="0" x2="350" y2="300" stroke="rgba(0,0,0,.08)" stroke-width="2"/>
+      <circle cx="160" cy="110" r="60" fill="rgba(220,38,38,.18)"/>
+      <circle cx="160" cy="110" r="32" fill="rgba(220,38,38,.30)"/>
+      <circle cx="460" cy="180" r="48" fill="rgba(217,119,6,.18)"/>
+      <circle cx="460" cy="180" r="26" fill="rgba(217,119,6,.28)"/>
+      <circle cx="310" cy="210" r="36" fill="rgba(37,99,235,.15)"/>
+      <circle cx="310" cy="210" r="18" fill="rgba(37,99,235,.25)"/>
+      <circle cx="570" cy="70" r="25" fill="rgba(22,163,74,.15)"/>
+      <!-- pins -->
+      <g style="cursor:pointer" onclick="mapClick('🔴 Sector 4: Dengue outbreak. 45 people affected. 3 volunteers assigned.')">
+        <circle cx="160" cy="110" r="12" fill="#dc2626" stroke="#fff" stroke-width="2"/>
+        <text x="160" y="115" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">!</text>
+      </g>
+      <g style="cursor:pointer" onclick="mapClick('🟡 Ward 7: Food shortage. 80 families. 2 logistics volunteers needed.')">
+        <circle cx="460" cy="180" r="11" fill="#d97706" stroke="#fff" stroke-width="2"/>
+        <text x="460" y="185" text-anchor="middle" font-size="11" fill="#fff" font-weight="700">!</text>
+      </g>
+      <g style="cursor:pointer" onclick="mapClick('🔵 Kolhapur Rd: Elderly isolation. 15 seniors need counseling.')">
+        <circle cx="310" cy="210" r="10" fill="#2563eb" stroke="#fff" stroke-width="2"/>
+        <text x="310" y="215" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">i</text>
+      </g>
+      <g style="cursor:pointer" onclick="mapClick('✅ Hadapsar: Issue resolved. Monitoring in progress.')">
+        <circle cx="570" cy="70" r="9" fill="#16a34a" stroke="#fff" stroke-width="2"/>
+        <text x="570" y="75" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">✓</text>
+      </g>
+      <!-- volunteer markers -->
+      <circle cx="185" cy="90" r="6" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+      <circle cx="480" cy="160" r="6" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+      <circle cx="290" cy="230" r="6" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+      <!-- legend -->
+      <rect x="12" y="10" width="140" height="84" rx="8" fill="rgba(255,255,255,.9)" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
+      <circle cx="26" cy="28" r="6" fill="#dc2626"/><text x="37" y="32" font-size="10" fill="#64748b">Critical zone</text>
+      <circle cx="26" cy="48" r="6" fill="#d97706"/><text x="37" y="52" font-size="10" fill="#64748b">High priority</text>
+      <circle cx="26" cy="68" r="6" fill="#2563eb"/><text x="37" y="72" font-size="10" fill="#64748b">Medium</text>
+      <circle cx="26" cy="85" r="5" fill="#16a34a" stroke="#fff" stroke-width="1.5"/><text x="37" y="89" font-size="10" fill="#64748b">Volunteer</text>
+    </svg>
+    <div class="map-info-bar" id="mapInfo">Click any pin to see details about that area</div>
+  </div>
+</div>
+
+<!-- ADMIN IMPACT -->
+<div class="page" id="page-admin-impact">
+  <div class="page-header"><div><div class="page-title">📊 Impact Tracker</div><div class="page-sub">How many lives Seva Singh has touched</div></div></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">❤️</div><div class="stat-lbl">People Helped</div><div class="stat-num">2,413</div><div class="stat-note">▲ +320 this month</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-lbl">Tasks Completed</div><div class="stat-num">189</div><div class="stat-note">92% success rate</div></div>
+    <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-lbl">Avg Response</div><div class="stat-num">38m</div><div class="stat-note">↓ 22% faster</div></div>
+    <div class="stat-card"><div class="stat-icon">🏢</div><div class="stat-lbl">Active NGOs</div><div class="stat-num">7</div><div class="stat-note">● 5 active today</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Tasks by Category</div>
+    <div class="bar-row"><div class="bar-label-row"><span>Medical Emergency</span><span style="color:var(--red)">52 tasks</span></div><div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--red)"></div></div></div>
+    <div class="bar-row"><div class="bar-label-row"><span>Food Assistance</span><span style="color:var(--yellow)">38 tasks</span></div><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--yellow)"></div></div></div>
+    <div class="bar-row"><div class="bar-label-row"><span>Education Support</span><span style="color:var(--blue)">29 tasks</span></div><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--blue)"></div></div></div>
+    <div class="bar-row"><div class="bar-label-row"><span>Elder Care</span><span style="color:var(--green)">24 tasks</span></div><div class="bar-track"><div class="bar-fill" style="width:34%;background:var(--green)"></div></div></div>
+    <div class="bar-row"><div class="bar-label-row"><span>Disaster Relief</span><span style="color:var(--orange)">18 tasks</span></div><div class="bar-track"><div class="bar-fill" style="width:26%;background:var(--orange)"></div></div></div>
+  </div>
+</div>
+
+<!-- ══════ NGO PAGES ══════ -->
+
+<!-- NGO HOME -->
+<div class="page" id="page-ngo-home">
+  <div class="role-banner banner-ngo">🏢 NGO Dashboard — Report community needs and track your submissions</div>
+  <div class="page-header">
+    <div><div class="page-title">NGO Dashboard</div><div class="page-sub" id="ngoGreet">Welcome!</div></div>
+    <button class="btn btn-primary" onclick="nav('ngo-report')">📋 Report New Need</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-lbl">My Reports</div><div class="stat-num">8</div><div class="stat-note">3 resolved this week</div></div>
+    <div class="stat-card"><div class="stat-icon">🙋</div><div class="stat-lbl">Volunteers Assigned</div><div class="stat-num">12</div><div class="stat-note">● 5 active now</div></div>
+    <div class="stat-card"><div class="stat-icon">❤️</div><div class="stat-lbl">People Helped</div><div class="stat-num">340</div><div class="stat-note">via your reports</div></div>
+    <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-lbl">Avg Match Time</div><div class="stat-num">42m</div><div class="stat-note">from report to assign</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Your Recent Reports</div>
+    <div class="need-item"><div class="priority-dot dot-red"></div><div style="flex:1"><div class="need-title">Dengue outbreak – Sector 4</div><div class="need-meta">Submitted 6h ago · 3 volunteers assigned · Priya Sharma en route</div></div><span class="score-pill pill-red">Active</span></div>
+    <div class="need-item"><div class="priority-dot dot-yellow"></div><div style="flex:1"><div class="need-title">Food shortage – Ward 7</div><div class="need-meta">Submitted 18h ago · 2 volunteers assigned · In progress</div></div><span class="score-pill pill-yellow">In Progress</span></div>
+    <div class="need-item"><div class="priority-dot dot-green"></div><div style="flex:1"><div class="need-title">Vaccination camp – Camp Area</div><div class="need-meta">Submitted 2 days ago · Completed · 120 people vaccinated</div></div><span class="score-pill pill-green">Done ✓</span></div>
+  </div>
+</div>
+
+<!-- NGO REPORT FORM — FULLY BUILT IN (NO EXTERNAL FILE NEEDED) -->
+<div class="page" id="page-ngo-report">
+  <div class="page-header"><div><div class="page-title">📋 Report Community Need</div><div class="page-sub">Fill this form — volunteers will be automatically notified</div></div></div>
+  <div style="max-width:580px">
+    <div class="alert alert-orange">⚠️ Please fill all fields accurately. Volunteers will be dispatched based on this information.</div>
+    <div class="form-group"><label class="f-label">NGO / Organization Name *</label><input class="f-input" id="ngo-org" placeholder="e.g. Helping Hands NGO, Solapur"></div>
+    <div class="form-group"><label class="f-label">Issue Title *</label><input class="f-input" id="ngo-title" placeholder="e.g. Dengue outbreak in Sector 4"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="f-label">Category *</label><select class="f-input" id="ngo-cat"><option>Medical Emergency</option><option>Food Shortage</option><option>Flood / Disaster</option><option>Mental Health</option><option>Elder Care</option><option>Child Education</option></select></div>
+      <div class="form-group"><label class="f-label">Location / Area *</label><input class="f-input" id="ngo-loc" placeholder="Ward / Sector / Village"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="f-label">Severity (1 = low, 10 = critical) *</label><input type="number" class="f-input" id="ngo-sev" min="1" max="10" value="7" oninput="calcNGOScore()"></div>
+      <div class="form-group"><label class="f-label">People Affected *</label><input type="number" class="f-input" id="ngo-ppl" value="50" oninput="calcNGOScore()"></div>
+    </div>
+    <div class="form-group"><label class="f-label">Skills Needed from Volunteers</label><select class="f-input" id="ngo-skill"><option>Medical / First Aid</option><option>Logistics / Driving</option><option>Teaching</option><option>Counseling</option><option>General Help</option></select></div>
+    <div class="form-group"><label class="f-label">Description of the problem</label><textarea class="f-input" id="ngo-desc" rows="3" placeholder="Describe what is happening and what help is needed..."></textarea></div>
+    <div class="score-box">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px">Auto Priority Score</div>
+      <div class="score-num" id="ngoScore">105</div>
+      <div class="score-level" id="ngoLevel">🟡 High Priority</div>
+      <div class="score-formula">Formula: Severity × People × 3 ÷ 10</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px" onclick="submitNGONeed()">📤 Submit & Notify Matching Volunteers</button>
+    <div class="alert alert-green" id="ngoSuccess" style="display:none;margin-top:12px">✅ Need submitted! Volunteers with matching skills near your area are being SMS-notified right now.</div>
+  </div>
+</div>
+
+<!-- NGO STATUS -->
+<div class="page" id="page-ngo-status">
+  <div class="page-header"><div><div class="page-title">📊 My Reports Status</div><div class="page-sub">Track all your submitted needs</div></div></div>
+  <div class="need-item"><div class="priority-dot dot-red"></div><div style="flex:1"><div class="need-title">Dengue outbreak – Sector 4</div><div class="need-meta">Score: 337 · 3 volunteers assigned · Priya Sharma en route · Est. arrival: 18 min</div></div><span class="score-pill pill-red">Active</span></div>
+  <div class="need-item"><div class="priority-dot dot-yellow"></div><div style="flex:1"><div class="need-title">Food shortage – Ward 7</div><div class="need-meta">Score: 248 · Rahul Kulkarni assigned · Distribution in progress</div></div><span class="score-pill pill-yellow">In Progress</span></div>
+  <div class="need-item"><div class="priority-dot dot-green"></div><div style="flex:1"><div class="need-title">Vaccination camp – Camp Area</div><div class="need-meta">Score: 180 · Completed · 120 people vaccinated · Impact recorded</div></div><span class="score-pill pill-green">Done ✓</span></div>
+</div>
+
+<!-- ══════ VOLUNTEER PAGES ══════ -->
+
+<!-- VOLUNTEER HOME -->
+<div class="page" id="page-vol-home">
+  <div class="role-banner banner-vol">🙋 Volunteer Dashboard — Your tasks, notifications, and badges</div>
+  <div class="page-header">
+    <div><div class="page-title">Volunteer Dashboard</div><div class="page-sub" id="volGreet">Welcome!</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="nav('vol-tasks')">📋 My Tasks</button>
+      <button class="btn btn-secondary" onclick="nav('vol-register')">✏️ Update Profile</button>
+    </div>
+  </div>
+  <!-- URGENT TASK ALERT -->
+  <div class="alert alert-red" style="margin-bottom:18px">
+    🚨 <strong>New Task Alert!</strong> Dengue outbreak in Sector 4 needs a Medical volunteer. You are 1.2km away. <button class="btn btn-red btn-sm" style="margin-left:8px" onclick="acceptTask()">Accept Now</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-lbl">Tasks Done</div><div class="stat-num">8</div><div class="stat-note">▲ 2 this week</div></div>
+    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-lbl">Points Earned</div><div class="stat-num" style="color:var(--orange)">640</div><div class="stat-note">Level 3 – Rising Star</div></div>
+    <div class="stat-card"><div class="stat-icon">❤️</div><div class="stat-lbl">People Helped</div><div class="stat-num">87</div><div class="stat-note">Total impact</div></div>
+    <div class="stat-card"><div class="stat-icon">🏅</div><div class="stat-lbl">Badges</div><div class="stat-num">3</div><div class="stat-note">1 new this week!</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📍 Assigned Task</div>
+      <div style="background:var(--red-bg);border:1.5px solid var(--red-border);border-radius:var(--r);padding:14px;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px">🚨 Dengue outbreak – Sector 4</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Medical help needed · 45 people · 1.2km from you · Assigned 30 min ago</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-green btn-sm" onclick="showToast('✅ Task accepted! Check your phone for directions 📱')">✅ Accept</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Task declined. Another volunteer will be notified.')">Decline</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">📞 Contact: NGO coordinator – 9876543210</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏆 Your Progress</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Level 3 – Rising Star</span><span style="color:var(--orange);font-weight:700">640 / 1000 pts</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:64%"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">360 more points to reach Level 4 – Community Hero</div>
+      <div style="margin-top:14px" class="badge-grid">
+        <div class="badge-item earned"><div class="badge-emoji">🏅</div><div class="badge-name">First Responder</div><div class="badge-pts">Earned!</div></div>
+        <div class="badge-item earned"><div class="badge-emoji">🌟</div><div class="badge-name">5 Tasks Done</div><div class="badge-pts">Earned!</div></div>
+        <div class="badge-item locked"><div class="badge-emoji">💪</div><div class="badge-name">Hero</div><div class="badge-pts">1000 pts</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VOLUNTEER TASKS -->
+<div class="page" id="page-vol-tasks">
+  <div class="page-header"><div><div class="page-title">📋 My Tasks</div><div class="page-sub">Tasks matched to your skills and location</div></div></div>
+  <div class="alert alert-red" style="margin-bottom:14px">🔔 You have 1 new task waiting for your response!</div>
+  <div class="need-item" style="border-color:var(--red-border);background:var(--red-bg)">
+    <div class="priority-dot dot-red"></div>
+    <div style="flex:1"><div class="need-title">🚨 Dengue outbreak – Sector 4</div><div class="need-meta">Medical · 1.2km away · Assigned 30 min ago · 45 people need help</div></div>
+    <div class="need-actions">
+      <button class="btn btn-green btn-sm" onclick="acceptTask()">✅ Accept</button>
+      <button class="btn btn-secondary btn-sm" onclick="showToast('Task declined.')">Decline</button>
+    </div>
+  </div>
+  <div class="need-item">
+    <div class="priority-dot dot-green"></div>
+    <div style="flex:1"><div class="need-title">Vaccination camp – Camp Area</div><div class="need-meta">Medical · Completed yesterday · 40 people vaccinated</div></div>
+    <span class="score-pill pill-green">Done ✓</span>
+  </div>
+  <div class="need-item">
+    <div class="priority-dot dot-green"></div>
+    <div style="flex:1"><div class="need-title">Food distribution – Ward 6</div><div class="need-meta">Logistics · Completed last week · 30 families helped</div></div>
+    <span class="score-pill pill-green">Done ✓</span>
+  </div>
+</div>
+
+<!-- VOLUNTEER REGISTER — FULLY BUILT IN -->
+<div class="page" id="page-vol-register">
+  <div class="page-header"><div><div class="page-title">✏️ Update Your Profile</div><div class="page-sub">Keep your skills and availability updated so we can match you to the right tasks</div></div></div>
+  <div style="max-width:540px">
+    <div class="form-row">
+      <div class="form-group"><label class="f-label">Full Name *</label><input class="f-input" id="v-name" placeholder="Priya Sharma" value="Priya Sharma"></div>
+      <div class="form-group"><label class="f-label">Phone *</label><input class="f-input" id="v-phone" placeholder="10-digit number" value="9876543210"></div>
+    </div>
+    <div class="form-group"><label class="f-label">Location / Area *</label><input class="f-input" id="v-loc" placeholder="e.g. Sector 3, Solapur" value="Sector 3, Solapur"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="f-label">Primary Skill *</label><select class="f-input" id="v-skill"><option>Medical / First Aid</option><option>Logistics / Driving</option><option>Teaching</option><option>Counseling</option><option>General Help</option></select></div>
+      <div class="form-group"><label class="f-label">Availability</label><select class="f-input" id="v-avail"><option>Any time (emergency response)</option><option>Weekdays only</option><option>Weekends only</option><option>Evenings only</option></select></div>
+    </div>
+    <div class="form-group"><label class="f-label" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="v-notify" checked> <span>Send me SMS notifications when a need matches my skill</span></label></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveProfile()">💾 Save Profile</button>
+    <div class="alert alert-green" id="profileSuccess" style="display:none;margin-top:12px">✅ Profile updated! You will now receive SMS alerts for matching tasks.</div>
+  </div>
+</div>
+
+<!-- VOLUNTEER BADGES -->
+<div class="page" id="page-vol-badges">
+  <div class="page-header"><div><div class="page-title">🏆 Badges & Points</div><div class="page-sub">Earn points for every completed task</div></div></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-lbl">Total Points</div><div class="stat-num" style="color:var(--orange)">640</div><div class="stat-note">Level 3 – Rising Star</div></div>
+    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-lbl">Next Level At</div><div class="stat-num">1000</div><div class="stat-note">360 points to go</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">All Badges</div>
+    <div class="badge-grid">
+      <div class="badge-item earned"><div class="badge-emoji">🏅</div><div class="badge-name">First Responder</div><div class="badge-pts">200 pts · Earned!</div></div>
+      <div class="badge-item earned"><div class="badge-emoji">🌟</div><div class="badge-name">5 Tasks Done</div><div class="badge-pts">300 pts · Earned!</div></div>
+      <div class="badge-item earned"><div class="badge-emoji">🩺</div><div class="badge-name">Medical Helper</div><div class="badge-pts">140 pts · Earned!</div></div>
+      <div class="badge-item locked"><div class="badge-emoji">💪</div><div class="badge-name">Community Hero</div><div class="badge-pts">1000 pts · Locked</div></div>
+      <div class="badge-item locked"><div class="badge-emoji">🚀</div><div class="badge-name">Speed Demon</div><div class="badge-pts">500 pts · Locked</div></div>
+      <div class="badge-item locked"><div class="badge-emoji">👑</div><div class="badge-name">Legend</div><div class="badge-pts">2000 pts · Locked</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end content -->
+</div><!-- end appScreen -->
+
+<script>
+// ══════════════════════════════
+// STATE
+// ══════════════════════════════
+var role = 'Admin';
+var userName = 'Rahul Sharma';
+
+var notifications = {
+  Admin: [
+    { icon:'🚨', text:'URGENT: Flash flood in River Zone. 60 people affected. 3 volunteers needed.', time:'2 min ago', urgent:true },
+    { icon:'✅', text:'Priya Sharma completed vaccination camp task. 120 people helped.', time:'1 hr ago', urgent:false },
+    { icon:'👤', text:'New volunteer registered: Vikram Nair (Medical, Sector 2)', time:'2 hrs ago', urgent:false },
+  ],
+  NGO: [
+    { icon:'✅', text:'Your report "Dengue outbreak – Sector 4" has been assigned to 3 volunteers.', time:'30 min ago', urgent:false },
+    { icon:'🙋', text:'Priya Sharma (Medical) is en route to your reported location.', time:'35 min ago', urgent:false },
+  ],
+  Volunteer: [
+    { icon:'🚨', text:'NEW TASK: Dengue outbreak – Sector 4. Medical help needed. You are 1.2km away. Please respond!', time:'Just now', urgent:true },
+    { icon:'⭐', text:'You earned the "First Responder" badge! +200 points added.', time:'Yesterday', urgent:false },
+  ]
+};
+
+var navMenus = {
+  Admin:[
+    {label:'🏠 Dashboard', page:'admin-home'},
+    {label:'🚨 Needs', page:'admin-needs'},
+    {label:'👥 Volunteers', page:'admin-volunteers'},
+    {label:'🗺 Map', page:'admin-map'},
+    {label:'📊 Impact', page:'admin-impact'},
+  ],
+  NGO:[
+    {label:'🏠 Dashboard', page:'ngo-home'},
+    {label:'📋 Report Need', page:'ngo-report'},
+    {label:'📊 My Reports', page:'ngo-status'},
+  ],
+  Volunteer:[
+    {label:'🏠 Dashboard', page:'vol-home'},
+    {label:'📋 My Tasks', page:'vol-tasks'},
+    {label:'✏️ My Profile', page:'vol-register'},
+    {label:'🏆 Badges', page:'vol-badges'},
+  ]
+};
+
+var vols = [
+  {name:'Priya Sharma', skills:'Medical, First Aid', loc:'Sector 3', dist:1.2, avail:true, tasks:22, initials:'PS', bg:'#fde68a', color:'#92400e'},
+  {name:'Rahul Kulkarni', skills:'Logistics, Driving', loc:'Ward 6', dist:2.8, avail:true, tasks:18, initials:'RK', bg:'#bbf7d0', color:'#14532d'},
+  {name:'Meena Jadhav', skills:'Counseling, Teaching', loc:'Camp Area', dist:4.1, avail:true, tasks:15, initials:'MJ', bg:'#bfdbfe', color:'#1e3a8a'},
+  {name:'Arjun Patil', skills:'Medical, Nursing', loc:'Sector 5', dist:0.9, avail:false, tasks:12, initials:'AP', bg:'#fecaca', color:'#7f1d1d'},
+  {name:'Sunita Desai', skills:'General, Cooking', loc:'Ward 8', dist:3.5, avail:true, tasks:9, initials:'SD', bg:'#e9d5ff', color:'#4c1d95'},
+  {name:'Vikram Nair', skills:'Medical, Logistics', loc:'Sector 2', dist:1.6, avail:false, tasks:8, initials:'VN', bg:'#fef3c7', color:'#78350f'},
+];
+
+var needs = [
+  {title:'Flash flood – River Zone', cat:'Flood/Disaster', loc:'River Zone East', sev:8, ppl:60, hrs:3, score:480, priority:'critical'},
+  {title:'Dengue outbreak – Sector 4', cat:'Medical Emergency', loc:'Sector 4, Solapur', sev:9, ppl:45, hrs:6, score:337, priority:'critical'},
+  {title:'Food shortage – Ward 7', cat:'Food Shortage', loc:'Ward 7, Solapur', sev:7, ppl:80, hrs:18, score:248, priority:'high'},
+  {title:'Children vaccination – Camp Area', cat:'Medical Emergency', loc:'Camp Area', sev:6, ppl:120, hrs:24, score:180, priority:'high'},
+  {title:'Elderly isolation – Kolhapur Rd', cat:'Elder Care', loc:'Kolhapur Road', sev:5, ppl:15, hrs:48, score:78, priority:'medium'},
+];
+
+// ══════════════════════════════
+// LOGIN
+// ══════════════════════════════
+function selectRole(r, btn) {
+  role = r;
+  document.querySelectorAll('.role-card').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+}
+
+function doLogin() {
+  var name = document.getElementById('loginName').value.trim();
+  var email = document.getElementById('loginEmail').value.trim();
+  var pass = document.getElementById('loginPass').value.trim();
+  if(!name || !email || !pass){ alert('Please fill in all fields to continue.'); return; }
+  userName = name;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  // setup UI
+  document.getElementById('userNameChip').textContent = name.split(' ')[0];
+  document.getElementById('userAvatar').textContent = name[0].toUpperCase();
+  document.getElementById('roleTag').textContent = role;
+  document.getElementById('roleTag').className = 'role-tag tag-' + role.toLowerCase();
+  if(document.getElementById('adminGreet')) document.getElementById('adminGreet').textContent = 'Welcome back, ' + name + '!';
+  if(document.getElementById('ngoGreet')) document.getElementById('ngoGreet').textContent = 'Welcome, ' + name + '! You have 2 active reports.';
+  if(document.getElementById('volGreet')) document.getElementById('volGreet').textContent = 'Hi ' + name + '! You have 1 new task waiting 🔔';
+  buildNav();
+  loadNotifications();
+  var homeMap = {Admin:'admin-home', NGO:'ngo-home', Volunteer:'vol-home'};
+  nav(homeMap[role]);
+}
+
+function doLogout() {
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('notifPanel').classList.remove('open');
+}
+
+// ══════════════════════════════
+// NAVIGATION
+// ══════════════════════════════
+function buildNav() {
+  var items = navMenus[role];
+  var html = '';
+  items.forEach(function(item){
+    html += '<button class="nav-btn" onclick="nav(\'' + item.page + '\')">' + item.label + '</button>';
+  });
+  document.getElementById('topNav').innerHTML = html;
+}
+
+function nav(pageId) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var el = document.getElementById('page-' + pageId);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes(pageId)) b.classList.add('active');
+  });
+  document.getElementById('notifPanel').classList.remove('open');
+  // init page data
+  if(pageId==='admin-volunteers' || pageId==='admin-needs') { renderVols('all'); renderNeeds('all'); }
+}
+
+// ══════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════
+function loadNotifications() {
+  var list = notifications[role] || [];
+  var html = '';
+  list.forEach(function(n){
+    html += '<div class="notif-item' + (n.urgent?' notif-urgent':'') + '">'
+      + '<div class="notif-item-icon">' + n.icon + '</div>'
+      + '<div><div class="notif-item-text">' + n.text + '</div>'
+      + '<div class="notif-item-time">' + n.time + '</div></div></div>';
+  });
+  document.getElementById('notifList').innerHTML = html;
+  var urgentCount = list.filter(function(n){ return n.urgent; }).length;
+  document.getElementById('notifDot').style.display = urgentCount > 0 ? 'block' : 'none';
+}
+
+function toggleNotif() {
+  document.getElementById('notifPanel').classList.toggle('open');
+}
+
+function clearNotifs() {
+  document.getElementById('notifList').innerHTML = '<div style="padding:16px;text-align:center;font-size:12px;color:var(--muted)">No new notifications</div>';
+  document.getElementById('notifDot').style.display = 'none';
+}
+
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('notifPanel');
+  var bell = document.querySelector('.notif-bell');
+  if(panel && !panel.contains(e.target) && bell && !bell.contains(e.target)){
+    panel.classList.remove('open');
+  }
+});
+
+// ══════════════════════════════
+// NEEDS LIST
+// ══════════════════════════════
+function renderNeeds(filter) {
+  var list = needs;
+  if(filter==='critical') list = needs.filter(function(n){ return n.priority==='critical'; });
+  if(filter==='high') list = needs.filter(function(n){ return n.priority==='high'; });
+  if(filter==='medium') list = needs.filter(function(n){ return n.priority==='medium'; });
+  var dotMap = {critical:'dot-red', high:'dot-yellow', medium:'dot-blue'};
+  var pillMap = {critical:'pill-red', high:'pill-yellow', medium:'pill-blue'};
+  var html = list.map(function(n){
+    return '<div class="need-item"><div class="priority-dot ' + dotMap[n.priority] + '"></div>'
+      + '<div style="flex:1"><div class="need-title">' + n.title + '</div>'
+      + '<div class="need-meta">' + n.cat + ' · ' + n.loc + ' · ' + n.ppl + ' people · ' + n.hrs + 'h ago</div></div>'
+      + '<span class="score-pill ' + pillMap[n.priority] + '">' + n.score + '</span>'
+      + '<button class="btn btn-green btn-sm" onclick="matchVol(\'' + n.title + '\')">Match Volunteer</button></div>';
+  }).join('');
+  var el = document.getElementById('needsListFull');
+  if(el) el.innerHTML = html;
+}
+
+function filterNeeds(f){ renderNeeds(f); }
+
+function matchVol(title) {
+  showToast('🤖 Best match: Priya Sharma (Medical, 1.2km). SMS sent to volunteer!');
+}
+
+// ══════════════════════════════
+// VOLUNTEERS LIST
+// ══════════════════════════════
+function renderVols(filter) {
+  var list = vols;
+  if(filter==='avail') list = vols.filter(function(v){ return v.avail; });
+  if(filter==='busy') list = vols.filter(function(v){ return !v.avail; });
+  var html = list.map(function(v){
+    return '<div class="vol-item">'
+      + '<div class="vol-avatar" style="background:' + v.bg + ';color:' + v.color + '">' + v.initials + '</div>'
+      + '<div style="flex:1"><div class="vol-name">' + v.name + '</div>'
+      + '<div class="vol-meta">' + v.skills + ' · ' + v.dist + 'km away · ' + v.tasks + ' tasks completed</div></div>'
+      + '<span class="avail-pill ' + (v.avail?'avail-yes':'avail-no') + '">' + (v.avail?'Available':'On Task') + '</span>'
+      + '<button class="btn btn-blue btn-sm" onclick="notifyVol(\'' + v.name + '\')">📱 Notify</button></div>';
+  }).join('');
+  var el = document.getElementById('volsFull');
+  if(el) el.innerHTML = html;
+}
+
+function notifyVol(name) {
+  showToast('📱 SMS sent to ' + name + '! Waiting for response.');
+}
+
+// ══════════════════════════════
+// PRIORITY CALCULATORS
+// ══════════════════════════════
+function calcScore(sevId, pplId, scoreId, levelId) {
+  var s = parseInt(document.getElementById(sevId).value) || 1;
+  var p = parseInt(document.getElementById(pplId).value) || 1;
+  var score = Math.round(s * p * 3 / 10);
+  document.getElementById(scoreId).textContent = score;
+  var level = '🟢 Low Priority';
+  if(score >= 150) level = '🔴 CRITICAL – Immediate action needed!';
+  else if(score >= 70) level = '🟡 High Priority';
+  else if(score >= 30) level = '🔵 Medium Priority';
+  document.getElementById(levelId).textContent = level;
+}
+
+function calcPriority() { calcScore('r-sev','r-ppl','reportScore','reportLevel'); }
+function calcNGOScore() { calcScore('ngo-sev','ngo-ppl','ngoScore','ngoLevel'); }
+
+// ══════════════════════════════
+// FORM SUBMISSIONS
+// ══════════════════════════════
+function submitNeed() {
+  var t = document.getElementById('r-title').value;
+  if(!t){ showToast('⚠️ Please enter an issue title'); return; }
+  document.getElementById('reportSuccess').style.display = 'flex';
+  showToast('✅ Need submitted! Volunteers are being SMS-notified 🚀');
+  addNotification('📋', 'New need "' + t + '" submitted by Admin. Priority scored.', 'Just now', false);
+}
+
+function submitNGONeed() {
+  var t = document.getElementById('ngo-title').value;
+  var org = document.getElementById('ngo-org').value;
+  if(!t || !org){ showToast('⚠️ Please fill all required fields'); return; }
+  document.getElementById('ngoSuccess').style.display = 'flex';
+  showToast('✅ Need submitted! Matching volunteers notified via SMS 🚀');
+}
+
+function saveProfile() {
+  document.getElementById('profileSuccess').style.display = 'flex';
+  showToast('✅ Profile saved! SMS notifications enabled.');
+}
+
+function acceptTask() {
+  showToast('✅ Task accepted! +80 points earned. Directions sent to your phone 📱');
+}
+
+// ══════════════════════════════
+// EMERGENCY
+// ══════════════════════════════
+function triggerEmergency() {
+  document.getElementById('emergencyBar').classList.add('show');
+  showToast('🚨 EMERGENCY MODE: All nearby volunteers have been SMS-alerted!');
+  addNotification('🚨', 'EMERGENCY MODE activated by Admin. All volunteers alerted.', 'Just now', true);
+}
+
+function cancelEmergency() {
+  document.getElementById('emergencyBar').classList.remove('show');
+  showToast('Emergency mode deactivated ✅');
+}
+
+// ══════════════════════════════
+// MAP
+// ══════════════════════════════
+function mapClick(info) {
+  document.getElementById('mapInfo').textContent = info;
+}
+
+// ══════════════════════════════
+// TOAST
+// ══════════════════════════════
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3800);
+}
+
+function addNotification(icon, text, time, urgent) {
+  var list = document.getElementById('notifList');
+  var div = document.createElement('div');
+  div.className = 'notif-item' + (urgent?' notif-urgent':'');
+  div.innerHTML = '<div class="notif-item-icon">' + icon + '</div><div><div class="notif-item-text">' + text + '</div><div class="notif-item-time">' + time + '</div></div>';
+  list.insertBefore(div, list.firstChild);
+  if(urgent) document.getElementById('notifDot').style.display = 'block';
+}
+</script>
+</body>
+</html>
